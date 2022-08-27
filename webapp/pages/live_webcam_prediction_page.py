@@ -57,7 +57,7 @@ with st.sidebar:
     st.sidebar.subheader('Chart')
     add_selectbox = st.sidebar.selectbox(
             "Do you like to see chart?",
-            ("None", "Barplot", "Countplot")
+            ("None", "Barplot")
         )
 
     
@@ -100,15 +100,27 @@ spoof_model.load_weights('E:/FINAL YEAR PROJECT/spoofing detection/models/antisp
 
 
 
-
+fisher_faces_model =  cv2.face.FisherFaceRecognizer_create()
+eigen_faces_model = cv2.face.EigenFaceRecognizer_create()
 # path_model = './Modelos/model_dropout.hdf5'
 
 
 model_face = LBPHRecognizer_model()
 @st.cache(allow_output_mutation=True)
-def model_face_func():
-    model_face.read('E:/FINAL YEAR PROJECT/face recognition/outputs/classifier.yaml')
-model_face_func()
+def model_face_func(model_path, type):
+    if type == 'fisherman':
+        model_face = cv2.face.FisherFaceRecognizer_create()
+        model_face.read(model_path)
+    if type=='eigen':
+        model_face = cv2.face.EigenFaceRecognizer_create()
+        model_face.read(model_path)
+    if type=='lbph':
+        model_face = LBPHRecognizer_model()
+        model_face.read(model_path)
+
+
+
+
 face_detection = face_detect_model()
 leye,reye = left_right_eye_detect_model()
 age_model = cache_load_model(age_model_path)
@@ -122,6 +134,23 @@ print("Model loaded from disk")
 # ==================================================
         # WebCam Operations 
 # ==================================================
+vvvv= []
+range1 = []
+LEFT_EYE_FRAME_WINDOW = st.image([])
+RIGHT_EYE_FRAME_WINDOW = st.image([])
+
+i = 0
+
+
+
+
+
+if face_recognition:
+                algorithm_selection1 = st.selectbox(
+                    "Select Algorithm for Recognition",
+                    ("None", "LBPH Algorithm","Eigen Faces Algorithm","Fisher Faces Algorithm"),
+                    key=f'{i}'
+                )
 
 if run:
     while run:
@@ -130,7 +159,6 @@ if run:
         height,width = frame.shape[:2] 
         frame = cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
         frame = cv2.flip(frame,1)
-        # gray_frame = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
         faces = face_detection.detectMultiScale(frame,1.1,5)
         for (x,y,w,h) in faces:
             img = cv2.rectangle(frame,(x,y),(x+w,y+h),(255,0,0),2)
@@ -143,22 +171,16 @@ if run:
                 roi_gray = roi_gray.astype("float") / 255.0
                 prediction = emotion_model.predict(roi_gray)
                 prediction_label = emotion_labels[np.argmax(prediction)]
-                # if gray_image:
-                #     frame = cv2.cvtColor(frame,cv2.COLOR_RGB2GRAY)
                 cv2.putText(frame,prediction_label,(x+w, y),cv2.FONT_HERSHEY_COMPLEX,label_size,(0,255,0),1)
 
             if age_prediction_checkbox:
-                # img = cv2.rectangle(frame,(x,y),(x+w,y+h),(255,255,0),1)
                 roi_color = cv2.resize(roi_color, (200,200), interpolation=cv2.INTER_AREA)
                 roi_gray = cv2.cvtColor(roi_color,cv2.COLOR_RGB2GRAY)
-                # roi_gray = roi_gray.astype('float64') / 255.
                 roi_gray = roi_gray.reshape(1,200,200,1)
                 pred = age_model.predict(roi_gray)
                 predicted_age = age_labels[np.argmax(pred)]
                 cv2.putText(frame,str(predicted_age),(x+w, y+150),cv2.FONT_HERSHEY_COMPLEX,label_size,(255,255,0),1)
 
-
-                
 
             if gender_prediction_checkbox:
                 # preprocessing for gender detection model
@@ -186,8 +208,6 @@ if run:
                 cv2.putText(frame,str(label),(x+w, y + 40),cv2.FONT_HERSHEY_COMPLEX,label_size,(255,255,0),1)
 
                                 
-                        
-
             if blink_detection:
                 gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
                 left_eye = leye.detectMultiScale(gray)
@@ -195,6 +215,7 @@ if run:
 
                 for (x,y,w,h) in right_eye:
                     r_eye=frame[y:y+h,x:x+w]
+                    RIGHT_EYE_FRAME_WINDOW.image(r_eye,caption="Right Eye")
                     count=count+1
                     r_eye = cv2.cvtColor(r_eye,cv2.COLOR_BGR2GRAY)
                     r_eye = cv2.resize(r_eye,(24,24))
@@ -211,6 +232,7 @@ if run:
 
                 for (x,y,w,h) in left_eye:
                     l_eye=frame[y:y+h,x:x+w]
+                    LEFT_EYE_FRAME_WINDOW.image(l_eye,caption="Left Eye")
                     count=count+1
                     l_eye = cv2.cvtColor(l_eye,cv2.COLOR_BGR2GRAY)  
                     l_eye = cv2.resize(l_eye,(24,24))
@@ -218,6 +240,9 @@ if run:
                     l_eye=l_eye.reshape(24,24,-1)
                     l_eye = np.expand_dims(l_eye,axis=0)
                     lpred = blink_detection_model.predict(l_eye)
+                    # print(lpred[0])
+                    vvvv.append(lpred[0][0])
+
                     lpred = np.argmax(lpred)
 
                     if(lpred==1):
@@ -242,12 +267,26 @@ if run:
             if face_recognition:
                 roi_color = cv2.resize(roi_color,(224,224))
                 roi_gray = cv2.cvtColor(roi_color,cv2.COLOR_BGR2GRAY)
-                prediction, conf = model_face.predict(roi_gray)
-                print(prediction,conf)
-                data = get_single_data(prediction)
-                print(data)
-                cv2.putText(frame,'pred:'+str(data[1]),(x + w, y + h), font, label_size,(255,255,0),1,cv2.LINE_AA)
 
+                try:
+                    if algorithm_selection1 == 'Fisher Faces Algorithm':
+                        model_face_func('E:/FINAL YEAR PROJECT/face recognition/outputs/fisher_face_classifier.yaml','fisherman')
+                    elif algorithm_selection1 == 'Eigen Faces Algorithm':
+                        model_face_func('E:/FINAL YEAR PROJECT/face recognition/outputs/eigen_face_classifier.yaml','eigen')
+                    else:
+                        model_face_func('E:/FINAL YEAR PROJECT/face recognition/outputs/classifier.yaml','lbph')
+                except:
+                    model_face_func('E:/FINAL YEAR PROJECT/face recognition/outputs/classifier.yaml','lbph')
+
+
+                prediction, conf = model_face.predict(roi_gray)
+                if conf > 40:
+                    print(prediction,conf)
+                    data = get_single_data(prediction)
+                    print(data)
+                    cv2.putText(frame,'pred:'+str(data[1]),(x + w, y + h), font, label_size,(255,255,0),1,cv2.LINE_AA)
+                else:
+                    cv2.putText(frame,'Unknown',(x + w, y + h), font, label_size,(255,255,0),1,cv2.LINE_AA)
 
             
             # Plot 
@@ -319,10 +358,16 @@ if run:
                     )
                     placeholder4.plotly_chart(fig)
             
-
-
+                if add_selectbox == "Barplot" and blink_detection:
+                    import datetime
+                    import pandas as pd
+                    if len(vvvv) != len(range1):
+                        range1.append(datetime.datetime.now())
+                    st.line_chart(pd.DataFrame(np.array(vvvv),np.array(range1)),height=300,width= 300,use_container_width=False)
+                    
         FRAME_WINDOW.image(frame)
 else:
+    cam.release()
     st.write("Stopped.")
 
 

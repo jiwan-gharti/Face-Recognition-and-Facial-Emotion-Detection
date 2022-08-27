@@ -37,7 +37,7 @@ with st.sidebar:
     st.sidebar.subheader('Chart')
     add_selectbox = st.sidebar.selectbox(
             "Do you like to see chart?",
-            ("None", "Barplot", "Countplot")
+            ("None", "Barplot")
         )
     
     st.subheader('Categories : ')

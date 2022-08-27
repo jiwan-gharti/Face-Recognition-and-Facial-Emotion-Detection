@@ -14,7 +14,19 @@ def model_func():
 
 model_face = model_func()
 
-def train_lbph():
+fisher_faces_model =  cv2.face.FisherFaceRecognizer_create()
+eigen_faces_model = cv2.face.EigenFaceRecognizer_create()
+
+
+algorithm_selection = st.selectbox(
+    "Select Algorithm for Training",
+    ("None", "LBPH Algorithm","Eigen Faces Algorithm","Fisher Faces Algorithm")
+)
+
+
+
+def train_lbph(algorithm_name):
+    print(algorithm_name)
     BASE_DIR = 'E:\\FINAL YEAR PROJECT\\data'
     folder_path = [os.path.join(BASE_DIR,folder) for folder in os.listdir(BASE_DIR)]
 
@@ -44,9 +56,18 @@ def train_lbph():
 
     ############# TRAINING LBPH MODEL ###################33
     # model = model_func()
-    model_face.train(faces,ids)
-    model_face.save("E:/FINAL YEAR PROJECT/face recognition/outputs/classifier.yaml")
-    st.success("Training is Completed.")
+    if algorithm_name == 'LBPH Algorithm':
+        model_face.train(faces,ids)
+        model_face.save("E:/FINAL YEAR PROJECT/face recognition/outputs/classifier.yaml")
+        st.success("Training is Completed.")
+    elif algorithm_name == 'Eigen Faces Algorithm':
+        eigen_faces_model.train(faces,ids)
+        eigen_faces_model.save("E:/FINAL YEAR PROJECT/face recognition/outputs/eigen_face_classifier.yaml")
+        st.success("Training is Completed.")
+    elif algorithm_name == 'Fisher Faces Algorithm':
+        fisher_faces_model.train(faces,ids)
+        fisher_faces_model.save("E:/FINAL YEAR PROJECT/face recognition/outputs/fisher_face_classifier.yaml")
+        st.success("Training is Completed.")
 
-
-value = st.button('Train Model',on_click=train_lbph)
+if algorithm_selection != 'None':
+    value = st.button('Train Model',on_click=train_lbph,args=[algorithm_selection])
