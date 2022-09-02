@@ -95,7 +95,7 @@ loaded_model_json = json_file.read()
 json_file.close()
 spoof_model = model_from_json(loaded_model_json)
 # load antispoofing model weights 
-spoof_model.load_weights('E:/FINAL YEAR PROJECT/spoofing detection/models/antispoofing_model.h5')
+# spoof_model.load_weights('E:/FINAL YEAR PROJECT/spoofing detection/models/antispoofing_model.h5')
 
 
 
@@ -148,8 +148,7 @@ i = 0
 if face_recognition:
                 algorithm_selection1 = st.selectbox(
                     "Select Algorithm for Recognition",
-                    ("None", "LBPH Algorithm","Eigen Faces Algorithm","Fisher Faces Algorithm"),
-                    key=f'{i}'
+                    ("LBPH Algorithm","Eigen Faces Algorithm","Fisher Faces Algorithm"),
                 )
 
 if run:
@@ -169,17 +168,17 @@ if run:
                 roi_gray = cv2.cvtColor(roi_gray,cv2.COLOR_BGR2GRAY)
                 roi_gray = roi_gray.reshape(1,48,48,1)
                 roi_gray = roi_gray.astype("float") / 255.0
-                prediction = emotion_model.predict(roi_gray)
+                emotion_pred = prediction = emotion_model.predict(roi_gray)
                 prediction_label = emotion_labels[np.argmax(prediction)]
-                cv2.putText(frame,prediction_label,(x+w, y),cv2.FONT_HERSHEY_COMPLEX,label_size,(0,255,0),1)
+                cv2.putText(frame,prediction_label,(x+w, y),cv2.FONT_HERSHEY_COMPLEX,label_size,(255,255,0),1)
 
             if age_prediction_checkbox:
                 roi_color = cv2.resize(roi_color, (200,200), interpolation=cv2.INTER_AREA)
                 roi_gray = cv2.cvtColor(roi_color,cv2.COLOR_RGB2GRAY)
                 roi_gray = roi_gray.reshape(1,200,200,1)
-                pred = age_model.predict(roi_gray)
+                age_prediction = pred = age_model.predict(roi_gray)
                 predicted_age = age_labels[np.argmax(pred)]
-                cv2.putText(frame,str(predicted_age),(x+w, y+150),cv2.FONT_HERSHEY_COMPLEX,label_size,(255,255,0),1)
+                cv2.putText(frame,str(predicted_age),(x, y),cv2.FONT_HERSHEY_COMPLEX,label_size,(255,255,0),1)
 
 
             if gender_prediction_checkbox:
@@ -192,7 +191,7 @@ if run:
                 # predict
                 gender_prediction = gender_model.predict(face_crop)
                 gender_classification = gender_classes[np.argmax(gender_prediction)]
-                cv2.putText(frame,str(gender_classification),(x+w, y+100),cv2.FONT_HERSHEY_COMPLEX,label_size,(255,255,0),1)
+                cv2.putText(frame,str(gender_classification),(x, y+h),cv2.FONT_HERSHEY_COMPLEX,label_size,(255,255,0),1)
 
             
             if spoof_detection:
@@ -206,6 +205,30 @@ if run:
                     label = 'real'
 
                 cv2.putText(frame,str(label),(x+w, y + 40),cv2.FONT_HERSHEY_COMPLEX,label_size,(255,255,0),1)
+            
+            if face_recognition:
+                roi_color = cv2.resize(roi_color,(224,224))
+                roi_gray = cv2.cvtColor(roi_color,cv2.COLOR_BGR2GRAY)
+
+                try:
+                    if algorithm_selection1 == 'Fisher Faces Algorithm':
+                        model_face_func('E:/FINAL YEAR PROJECT/face recognition/outputs/fisher_face_classifier.yaml','fisherman')
+                    elif algorithm_selection1 == 'Eigen Faces Algorithm':
+                        model_face_func('E:/FINAL YEAR PROJECT/face recognition/outputs/eigen_face_classifier.yaml','eigen')
+                    else:
+                        model_face_func('E:/FINAL YEAR PROJECT/face recognition/outputs/classifier.yaml','lbph')
+                except:
+                    model_face_func('E:/FINAL YEAR PROJECT/face recognition/outputs/classifier.yaml','lbph')
+
+
+                prediction, conf = model_face.predict(roi_gray)
+                if conf > 40:
+                    print(prediction,conf)
+                    data = get_single_data(prediction)
+                    print(data)
+                    cv2.putText(frame,'pred:'+str(data[1]),(x + w, y + h), font, label_size,(255,255,0),1,cv2.LINE_AA)
+                else:
+                    cv2.putText(frame,'Unknown',(x + w, y + h), font, label_size,(255,255,0),1,cv2.LINE_AA)
 
                                 
             if blink_detection:
@@ -262,32 +285,6 @@ if run:
                 if(score<0):
                     score=0   
                 cv2.putText(frame,'Score: '+str(score),(10,height-40), font, 1,(255,255,0),1,cv2.LINE_AA)
-
-            
-            if face_recognition:
-                roi_color = cv2.resize(roi_color,(224,224))
-                roi_gray = cv2.cvtColor(roi_color,cv2.COLOR_BGR2GRAY)
-
-                try:
-                    if algorithm_selection1 == 'Fisher Faces Algorithm':
-                        model_face_func('E:/FINAL YEAR PROJECT/face recognition/outputs/fisher_face_classifier.yaml','fisherman')
-                    elif algorithm_selection1 == 'Eigen Faces Algorithm':
-                        model_face_func('E:/FINAL YEAR PROJECT/face recognition/outputs/eigen_face_classifier.yaml','eigen')
-                    else:
-                        model_face_func('E:/FINAL YEAR PROJECT/face recognition/outputs/classifier.yaml','lbph')
-                except:
-                    model_face_func('E:/FINAL YEAR PROJECT/face recognition/outputs/classifier.yaml','lbph')
-
-
-                prediction, conf = model_face.predict(roi_gray)
-                if conf > 40:
-                    print(prediction,conf)
-                    data = get_single_data(prediction)
-                    print(data)
-                    cv2.putText(frame,'pred:'+str(data[1]),(x + w, y + h), font, label_size,(255,255,0),1,cv2.LINE_AA)
-                else:
-                    cv2.putText(frame,'Unknown',(x + w, y + h), font, label_size,(255,255,0),1,cv2.LINE_AA)
-
             
             # Plot 
             with placeholder.container():
@@ -296,11 +293,25 @@ if run:
                     x = age_labels
                     y = pred[0] * 100
                     y = [str(int(i)) for i in y]
-                    fig = px.bar(x=x, y=y)
+                    # fig = px.bar(x=x, y=y)
+                    fig = px.bar(
+                        wide_df,
+                        x=x,
+                        y=y,
+                        text=y,
+                        color=x,
+                        title="Age Prediction",
+                        height=400,
+                        labels = {
+                            'x':'Age class',
+                            'y': 'Age Prediction in Perctange'
+                        }
+                    )
                     placeholder1.plotly_chart(fig)
+
                 if add_selectbox == 'Barplot' and facial_emotion_detection:
                     x = emotion_labels
-                    y = prediction[0] * 100
+                    y = emotion_pred[0] * 100
                     y = [int(i) for i in y]
                     # fig = px.bar(x=x, y=y)
                     fig = px.bar(

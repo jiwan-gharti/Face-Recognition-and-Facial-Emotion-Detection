@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 from PIL import Image
 import streamlit as st
+import plotly.express as px
 from tensorflow.keras.models import model_from_json
 from tensorflow.keras.preprocessing.image import img_to_array
 
@@ -68,6 +69,13 @@ with st.sidebar:
     spoof_detection = st.sidebar.checkbox(
         'Spoof Detection'
     )
+
+placeholder = st.empty()                                            # creating a single-empty-element container
+placeholder1 = st.empty()                                            # creating a single-empty-element container
+placeholder2 = st.empty()                                            # creating a single-empty-element container
+placeholder3 = st.empty()                                            # creating a single-empty-element container
+placeholder4 = st.empty()   
+wide_df = px.data.medals_wide()
 
 
 # ==================================================
@@ -144,7 +152,6 @@ with col2:
                     if area > 7000:
                         img = cv2.rectangle(image,(x,y),(x+w,y+h),(255,255,0),4)
                     
-                # st.image(image,caption='Predicted Image')
                            
             
             for (x,y,w,h) in faces:
@@ -165,7 +172,7 @@ with col2:
                         roi_gray = roi_gray.astype("float") / 255.0
 
                         
-                        prediction = emotion_model.predict(roi_gray)
+                        facial_emotion_pred = prediction = emotion_model.predict(roi_gray)
                         prediction_label = emotion_labels[np.argmax(prediction)]
                         cv2.putText(image,f'Emotion:{prediction_label}',(x+w, y),cv2.FONT_HERSHEY_COMPLEX,label_size,(255,0,0),2)
 
@@ -186,7 +193,7 @@ with col2:
                         roi_gray = cv2.cvtColor(roi_color,cv2.COLOR_RGB2GRAY)
                         # roi_gray = roi_gray.astype('float64') / 255.
                         roi_gray = roi_gray.reshape(1,200,200,1)
-                        pred = age_model.predict(roi_gray)
+                        age_prediction = pred = age_model.predict(roi_gray)
                         predicted_age = age_labels[np.argmax(pred)]
                         cv2.putText(image,f"Age: {predicted_age}",(x+w, y+150),cv2.FONT_HERSHEY_COMPLEX,label_size,(255,0,0),2)
                     
@@ -215,16 +222,93 @@ with col2:
                         print(prediction,conf)
                         data = get_single_data(prediction)
                         print(data)
-                        cv2.putText(image,f'pred: {str(data[1])} ({int(conf*100)}%)',(x+w, y+h), cv2.FONT_HERSHEY_COMPLEX, label_size,(255,0,0),2)
+                        cv2.putText(image,f'pred: {str(data[1])} ({int(conf)}%)',(x+w, y+h), cv2.FONT_HERSHEY_COMPLEX, label_size,(255,0,0),2)
 
 
+                    # Plot 
+                    if add_selectbox == 'Barplot' and age_prediction_checkbox:
+                        x = age_labels
+                        y = age_prediction[0] * 100
+                        y = [str(int(i)) for i in y]
+                        fig = px.bar(
+                        wide_df,
+                        x=x,
+                        y=y,
+                        text=y,
+                        color=x,
+                        title="Age Prediction",
+                        height=400,
+                        labels = {
+                            'x':'Age class',
+                            'y': 'Age Prediction in Perctange'
+                            }
+                        )
+                        placeholder1.plotly_chart(fig)
+
+                    if add_selectbox == 'Barplot' and facial_emotion_detection:
+                        x = emotion_labels
+                        y = facial_emotion_pred[0] * 100
+                        y = [int(i) for i in y]
+                        # fig = px.bar(x=x, y=y)
+                        fig = px.bar(
+                            wide_df,
+                            x=x,
+                            y=y,
+                            text=y,
+                            color=x,
+                            title="Facial Emotion Prediction",
+                            height=400,
+                            labels = {
+                                'x':'Facial Emotion class',
+                                'y': 'Facial Emotion Prediction in Perctange'
+                            }
+                        )
+                        placeholder2.plotly_chart(fig)
+
+                    if add_selectbox == 'Barplot' and spoof_detection:
+                        x = ['spoof','real']
+                        y = [preds[0], 1 - preds[0]]
+                        y = [int(i *  100) for i in y]
+
+                        fig = px.bar(
+                            wide_df,
+                            x=x,
+                            y=y,
+                            text=y,
+                            color=x,
+                            title="Spoof Prediction",
+                            height=400,
+                            labels = {
+                                'x':'Spoof Detection class',
+                                'y': 'Spoof Prediction in Perctange'
+                            }
+                        )
+                        placeholder3.plotly_chart(fig)
+
+                    if add_selectbox == 'Barplot' and gender_prediction_checkbox:
+                        x = gender_classes
+                        y = gender_prediction[0] * 100
+                        y = [int(i) for i in y]
+                        print(x,y)
+                        fig = px.bar(
+                            wide_df,
+                            x=x,
+                            y=y,
+                            text=y,
+                            color=gender_classes,
+                            title="Gender Prediction",
+                            height=400,
+                            labels = {
+                                'x':'Gender',
+                                'y': 'Gender Prediction in Perctange'
+                            }
+                        )
+                        placeholder4.plotly_chart(fig)
                 
-            st.image(image,caption='Predicted Image')
+            st.image(image,caption='Predicted Image') 
 
             if gray_image:
                 st.image(gray_image_converted,caption='Predicted Image')
-
-                
 
             if region_of_interest:
                 if len(faces) > 0:
@@ -241,17 +325,7 @@ with col2:
                     st.pyplot(fig)
             
 
-
-            # if len(prediction) != 0:
-            #     import seaborn as sns
-            #     import matplotlib.pyplot as plt
-
-            #     fig = plt.figure(figsize=(9,7))
-
-            #     x = labels
-            #     y = prediction * 100
-            #     sns.barplot(x=x, y = y[0])
-            #     st.pyplot(fig)
-
+            
+            
 
 
