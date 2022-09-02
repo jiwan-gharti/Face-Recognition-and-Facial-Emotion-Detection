@@ -27,4 +27,40 @@ def add_bg_from_local(image_file):
 add_bg_from_local('./static/home.png') 
 
 
+st.markdown(
+    """
+<style>
+.sidebar .sidebar-content {
+    background-image: linear-gradient(#2e7bcf,#2e7bcf);
+    color: white;
+}
+</style>
+""",
+    unsafe_allow_html=True,
+)
+
+
+
+
+# =========================================================
+# Styling
+# =========================================================
+
+# styl = f"""
+#     <style>
+#         .css-10trblm.e16nr0p30{{
+#             padding-top: 10rem;
+#             padding-right: 10rem;
+#             padding-left: 10rem;
+#             padding-bottom: 10rem;
+#             background-color: red;
+#             color: green;
+#         }}
+#     </style>
+#     """
+
+# st.markdown(styl,unsafe_allow_html=True)
+
+
+
 

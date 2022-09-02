@@ -75,13 +75,16 @@ if option == 'Update':
         if update_btn:
             st.success("Alter data Successfully.")
         i= 0
+        # import time
+        # time.sleep(1)
+        # if data[4] == 'False':
         run = st.checkbox('Add Image for Face recognition.', key='12')
         FRAME_WINDOW_CAPTURE = st.image([])
         cam = cv2.VideoCapture(0)
 
         captuer_image = st.button('Capture Image')
         student_name = selected_student.split('.')[1]
-        image_directory = f'{file_path}/{student_name}'
+        image_directory = f'{file_path}/{student_name}_{data[0]}'
         if not os.path.exists(image_directory):
             os.mkdir(image_directory)
 
@@ -99,19 +102,21 @@ if option == 'Update':
                             roi_color = frame[y:y+h, x:x+w]
                             roi_color = cv2.resize(roi_color,(450,450), interpolation=cv2.INTER_AREA)
                             roi_gray = cv2.cvtColor(roi_color,cv2.COLOR_BGR2GRAY)
-                            cv2.imwrite(f'{file_path}/{student_name}/image.{id}.{i}.png',roi_gray)
+                            cv2.imwrite(f'{file_path}/{student_name}_{data[0]}/image.{id}.{i}.png',roi_gray)
                             print("save save save save")
                             cv2.rectangle(frame,(x,y),(x+w,y+h),(255,0,0),4)
                         i += 1
                     else:
-                        cv2.putText(frame,'No Face',(0, 0),cv2.FONT_HERSHEY_COMPLEX,1,(255,0,0),2)
+                        cv2.putText(frame,'No Face',(20, 20),cv2.FONT_HERSHEY_COMPLEX,1,(255,0,0),2)
             
             else:
                 frame = cv2.putText(frame,"thank you!",(30,30),cv2.FONT_HERSHEY_COMPLEX,1,(255,255,0),2)
             if i == 20:
                 update_btn = edit_data(id,name,age,gender,'True')
-
             FRAME_WINDOW_CAPTURE.image(frame)
+        # else:
+        #     st.write("Image is already inserted Thank you..")
+
 
 
 if option == "Delete":

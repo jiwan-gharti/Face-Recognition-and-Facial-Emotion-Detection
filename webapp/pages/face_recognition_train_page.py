@@ -7,15 +7,18 @@ import cv2
 
 st.subheader("Train Face Recognition Model")
 
-@st.experimental_singleton 
-def model_func():
-    model = cv2.face.LBPHFaceRecognizer_create()
-    return model
+# @st.experimental_singleton 
+# def model_func():
+#     model = cv2.face.LBPHFaceRecognizer_create()
+#     return model
 
-model_face = model_func()
+# # model_face = model_func()
+
 
 fisher_faces_model =  cv2.face.FisherFaceRecognizer_create()
 eigen_faces_model = cv2.face.EigenFaceRecognizer_create()
+model_face = cv2.face.LBPHFaceRecognizer_create()
+
 
 
 algorithm_selection = st.selectbox(
@@ -35,12 +38,11 @@ def train_lbph(algorithm_name):
     faces = []
     ids = []
 
+    print(ids)
     imageLocation = st.empty()
     for image_path in file_path:
         import time
-        time.sleep(1)
-        # image = Image.open(image_path).convert("L")
-        # image = np.array(image,dtype='uint8')
+        time.sleep(0.25)
         image = cv2.imread(image_path)
         image = cv2.resize(image,(224,224))
         image = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
@@ -58,15 +60,15 @@ def train_lbph(algorithm_name):
     # model = model_func()
     if algorithm_name == 'LBPH Algorithm':
         model_face.train(faces,ids)
-        model_face.save("E:/FINAL YEAR PROJECT/face recognition/outputs/classifier.yaml")
+        model_face.save("../face recognition/outputs/classifier.yaml")
         st.success("Training is Completed.")
     elif algorithm_name == 'Eigen Faces Algorithm':
         eigen_faces_model.train(faces,ids)
-        eigen_faces_model.save("E:/FINAL YEAR PROJECT/face recognition/outputs/eigen_face_classifier.yaml")
+        eigen_faces_model.save("../face recognition/outputs/eigen_face_classifier.yaml")
         st.success("Training is Completed.")
     elif algorithm_name == 'Fisher Faces Algorithm':
         fisher_faces_model.train(faces,ids)
-        fisher_faces_model.save("E:/FINAL YEAR PROJECT/face recognition/outputs/fisher_face_classifier.yaml")
+        fisher_faces_model.save("../face recognition/outputs/fisher_face_classifier.yaml")
         st.success("Training is Completed.")
 
 if algorithm_selection != 'None':

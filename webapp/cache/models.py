@@ -15,8 +15,7 @@ def cache_load_model(model_name):
 
 @st.cache(allow_output_mutation=True)
 def face_detect_model():
-    # detect_frontal_face = '../../haar cascade files/haarcascade_frontalface_default.xml'
-    return cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_alt.xml')
+    return cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
 @st.cache(allow_output_mutation=True)
 def blink_detection_model():
@@ -29,10 +28,10 @@ def left_right_eye_detect_model():
     reye = cv2.CascadeClassifier('E:/FINAL YEAR PROJECT/haar cascade files/haarcascade_righteye_2splits.xml')
     return leye,reye
 
-@st.cache(allow_output_mutation=True)
-def gender_predict_model():
-    gender_model_path = 'E:/FINAL YEAR PROJECT/gender classification/models/gender_detection.model'
-    return load_model(gender_model_path)
+# @st.cache(allow_output_mutation=True)
+# def gender_predict_model():
+#     gender_model_path = 'E:/FINAL YEAR PROJECT/gender classification/models/gender_detection.model'
+#     return load_model(gender_model_path)
 
 
 
