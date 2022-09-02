@@ -28,10 +28,4 @@ def left_right_eye_detect_model():
     reye = cv2.CascadeClassifier('E:/FINAL YEAR PROJECT/haar cascade files/haarcascade_righteye_2splits.xml')
     return leye,reye
 
-# @st.cache(allow_output_mutation=True)
-# def gender_predict_model():
-#     gender_model_path = 'E:/FINAL YEAR PROJECT/gender classification/models/gender_detection.model'
-#     return load_model(gender_model_path)
-
-
 

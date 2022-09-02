@@ -11,7 +11,5 @@ font = cv2.FONT_HERSHEY_COMPLEX_SMALL
 
 
 # Path
-# gender_model_path = 'E:/FINAL YEAR PROJECT/gender classification/models/gender_detection.model'
-# age_model_path = 'E:/FINAL YEAR PROJECT/age prediction/models/age_model_pretrained.h5'
 blink_detection_path = 'E:/FINAL YEAR PROJECT/blink detection/models/bestmodel.h5'
 emotion_model_path = 'E:/FINAL YEAR PROJECT/emotion detection/models/model_dropout.hdf5'

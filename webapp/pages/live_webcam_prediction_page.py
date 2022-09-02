@@ -34,8 +34,6 @@ wide_df = px.data.medals_wide()
 placeholder = st.empty()                                            # creating a single-empty-element container
 placeholder2 = st.empty()                                            # creating a single-empty-element container
 placeholder3 = st.empty()                                            # creating a single-empty-element container
-# placeholder1 = st.empty()                                            # creating a single-empty-element container
-# placeholder4 = st.empty()                                            # creating a single-empty-element container
 col1,col2 = st.columns(2)
 run = st.checkbox('Open WebCam')
 FRAME_WINDOW = st.image([])
@@ -71,15 +69,6 @@ with st.sidebar:
     blink_detection = st.sidebar.checkbox(
         'Eye Blink Detection'
     )
-    # age_prediction_checkbox = st.sidebar.checkbox(
-    #     "Age Range Prediction",
-    #         # ("Email", "Home phone", "Mobile phone")
-    #     )
-    # gender_prediction_checkbox = st.sidebar.checkbox(
-    #     "Gender Classification"
-    # )
-
-
 
 # =====================================================
         # Different Model Initilization
@@ -210,7 +199,6 @@ if run:
                     cv2.putText(frame,'Unknown',(x + w, y + h), font, label_size,(255,255,0),1,cv2.LINE_AA)
                 
             
-            # if len(faces) < 2:                    
             if blink_detection:
                 gray = cv2.cvtColor(frame1, cv2.COLOR_RGB2GRAY)
                 left_eye = leye.detectMultiScale(gray)
@@ -232,7 +220,7 @@ if run:
                         lbl='Open'
                     if(rpred==0):
                         lbl='Closed'
-                    # RIGHT_EYE_FRAME_WINDOW.image(r_eye,caption="Right Eye")
+                    RIGHT_EYE_FRAME_WINDOW.image(r_eye,caption="Right Eye")
                     break
 
                 for (x,y,w,h) in left_eye:
@@ -254,7 +242,7 @@ if run:
                         lbl='Open'   
                     if(lpred==0):
                         lbl='Closed'
-                    # LEFT_EYE_FRAME_WINDOW.image(l_eye,caption="Left Eye")
+                    LEFT_EYE_FRAME_WINDOW.image(l_eye,caption="Left Eye")
                     break
 
                 if(rpred==0 and lpred==0):
@@ -273,30 +261,6 @@ if run:
                 if score1 > 5 and score2 > 5:
                     cv2.putText(frame,'real',(20,20), font, 1,(255,255,0),1,cv2.LINE_AA)
                     score1 = score2 = 0
-
-
-            # if age_prediction_checkbox:
-            #     roi_color = cv2.resize(roi_color, (200,200), interpolation=cv2.INTER_AREA)
-            #     roi_gray = cv2.cvtColor(roi_color,cv2.COLOR_RGB2GRAY)
-            #     roi_gray = roi_gray.reshape(1,200,200,1)
-            #     pred = age_model.predict(roi_gray)
-            #     predicted_age = age_labels[np.argmax(pred)]
-            #     cv2.putText(frame,str(predicted_age),(x+w, y+150),cv2.FONT_HERSHEY_COMPLEX,label_size,(255,255,0),1)
-
-
-            # if gender_prediction_checkbox:
-            #     # preprocessing for gender detection model
-            #     face_crop = frame[y:y+h, x:x+w]
-            #     face_crop = cv2.resize(roi_color, (96,96))
-            #     face_crop = face_crop.astype("float") / 255.0
-            #     face_crop = img_to_array(face_crop)
-            #     face_crop = np.expand_dims(face_crop, axis=0)
-            #     # predict
-            #     gender_prediction = gender_model.predict(face_crop)
-            #     gender_classification = gender_classes[np.argmax(gender_prediction)]
-            #     cv2.putText(frame,str(gender_classification),(x+w, y+100),cv2.FONT_HERSHEY_COMPLEX,label_size,(255,255,0),1)
-
-
         
                 # # Plot 
                 with placeholder2.container():
@@ -348,80 +312,7 @@ if run:
                         import pandas as pd
                         if len(vvvv) != len(range1):
                             range1.append(datetime.datetime.now())
-                        st.line_chart(pd.DataFrame(np.array(vvvv),np.array(range1)),height=300,width= 300,use_container_width=False)
-                    
-                # with placeholder.container():
-
-                #     if add_selectbox == 'Barplot' and age_prediction_checkbox:
-                #         x = age_labels
-                #         y = pred[0] * 100
-                #         y = [str(int(i)) for i in y]
-                #         fig = px.bar(x=x, y=y)
-                #         placeholder1.plotly_chart(fig)
-                #     if add_selectbox == 'Barplot' and facial_emotion_detection:
-                #         x = emotion_labels
-                #         y = prediction[0] * 100
-                #         y = [int(i) for i in y]
-                #         # fig = px.bar(x=x, y=y)
-                #         fig = px.bar(
-                #             wide_df,
-                #             x=x,
-                #             y=y,
-                #             text=y,
-                #             color=x,
-                #             title="Facial Emotion Prediction",
-                #             height=400,
-                #             labels = {
-                #                 'x':'Facial Emotion class',
-                #                 'y': 'Facial Emotion Prediction in Perctange'
-                #             }
-                #         )
-                #         placeholder2.plotly_chart(fig)
-
-                # with placeholder3.container():
-                #     if spoof_detection and add_selectbox == 'Barplot':
-                #         x = ['spoof','real']
-                #         y = [preds[0], 1 - preds[0]]
-                #         y = [int(i *  100) for i in y]
-                #         print("---------------------------------------------")
-                #         print(x,y)
-                #         print("---------------------------------------------")
-
-                #         fig = px.bar(
-                #             wide_df,
-                #             x=x,
-                #             y=y,
-                #             text=y,
-                #             color=x,
-                #             title="Spoof Prediction",
-                #             height=400,
-                #             labels = {
-                #                 'x':'Spoof Detection class',
-                #                 'y': 'Spoof Prediction in Perctange'
-                #             }
-                #         )
-                #         placeholder3.plotly_chart(fig)
-                #         # st.bar_chart(pd.DataFrame(np.array(x),np.array(y)))
-                    
-                    # if add_selectbox == 'Barplot' and gender_prediction_checkbox:
-                    #     x = gender_classes
-                    #     y = gender_prediction[0] * 100
-                    #     y = [int(i) for i in y]
-                    #     print(x,y)
-                    #     fig = px.bar(
-                    #         wide_df,
-                    #         x=x,
-                    #         y=y,
-                    #         text=y,
-                    #         color=gender_classes,
-                    #         title="Gender Prediction",
-                    #         height=400,
-                    #         labels = {
-                    #             'x':'Gender',
-                    #             'y': 'Gender Prediction in Perctange'
-                    #         }
-                    #     )
-                    #     placeholder4.plotly_chart(fig)
+                        st.line_chart(pd.DataFrame(np.array(vvvv),np.array(range1)),height=300,width= 700,use_container_width=False)
                 
         FRAME_WINDOW.image(frame)
 else:
